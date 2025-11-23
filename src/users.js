@@ -74,6 +74,7 @@ const STORAGE_KEYS = {
  * @property {number} [storageSize] - The total size of the user's data in bytes
  * @property {number | null} [expiresAt] - The timestamp when the user subscription expires (null for permanent users)
  * @property {string} [email] - The user's email address (optional)
+ * @property {string} [oauthProvider] - The OAuth provider used for authentication (github, discord, linuxdo)
  */
 
 /**
