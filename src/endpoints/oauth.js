@@ -519,6 +519,7 @@ router.get('/linuxdo/callback', async (request, response) => {
                     if (userResponse.ok) {
                         const contentType = userResponse.headers.get('content-type');
                         if (contentType && contentType.includes('application/json')) {
+                            /** @type {any} */
                             const data = await userResponse.json();
                             console.log(`从端点 ${endpoint} 获取的完整数据:`, JSON.stringify(data, null, 2));
 
