@@ -1,0 +1,21 @@
+services:
+  sillytavern:
+    build: . 
+    image: sillytavernchat:local
+    
+    container_name: sillytavern
+    hostname: sillytavern
+    environment:
+      - NODE_ENV=production
+      - FORCE_COLOR=1
+    ports:
+      - "18000:8000"
+    
+    volumes:
+      - "./config:/home/node/app/config"
+      - "./data:/home/node/app/data"
+      - "./plugins:/home/node/app/plugins"
+      - "./public:/home/node/app/public"
+      - "./src:/home/node/app/src"
+      - "./server.js:/home/node/app/server.js"
+    restart: unless-stopped

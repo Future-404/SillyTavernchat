@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <base href="/">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="robots" content="noindex, nofollow" />
+    
+    <title>SillyTavern - 注册</title>
+
+    <link rel="preload" as="style" href="style.css">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    
+    <link rel="stylesheet" href="css/fontawesome.min.css">
+    <link rel="stylesheet" href="css/solid.min.css">
+
+    <link href="webfonts/NotoSans/stylesheet.css" rel="stylesheet">
+    
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" type="text/css" href="css/login.css">
+    <link rel="stylesheet" type="text/css" href="css/register.css">
+
+    <style>
+        /* ==============================
+           注册页风格重写 - 修复版
+           ============================== */
+        
+        :root {
+            --primary-color: #a4bdfc;
+            --glass-bg: rgba(30, 30, 35, 0.70);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --input-underline: rgba(255, 255, 255, 0.3);
+            --text-main: #ffffff;
+            --text-muted: rgba(255, 255, 255, 0.6);
+        }
+
+        body.login {
+            margin: 0;
+            padding: 0;
+            font-family: 'Noto Sans', sans-serif;
+            background-color: #1a1b26;
+            background-image: url('/img/welcome_bg.jpg'); 
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        #shadow_popup {
+            position: relative !important;
+            background: transparent !important;
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            opacity: 1 !important;
+        }
+
+        #dialogue_popup {
+            position: relative !important;
+            margin: 0 !important;
+            transform: none !important;
+            left: auto !important;
+            top: auto !important;
+            
+            width: 85%; 
+            max-width: 380px;
+            max-height: 85vh;
+            overflow-y: auto;
+            scrollbar-width: none;
+            
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px); 
+            -webkit-backdrop-filter: blur(10px);
+            
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            
+            padding: 30px 25px;
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #dialogue_popup::-webkit-scrollbar { display: none; }
+
+        .register-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .register-title {
+            font-size: 1.2rem;
+            margin: 10px 0 5px 0;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .register-subtitle {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+        /* === 表单样式 === */
+        .register-form { width: 100%; }
+        .form-section-title, .form-hint, .form-label { display: none; }
+
+        /* 输入框容器 */
+        .form-group {
+            position: relative;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .input-icon-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            pointer-events: none;
+            transition: color 0.3s;
+        }
+
+        input.form-input {
+            width: 100% !important;
+            background: transparent !important;
+            border: none !important;
+            border-bottom: 1px solid var(--input-underline) !important;
+            border-radius: 0 !important;
+            padding: 10px 10px 10px 30px !important;
+            color: white !important;
+            font-size: 0.95rem !important;
+            transition: all 0.3s ease;
+        }
+
+        input.form-input:focus {
+            border-bottom-color: var(--primary-color) !important;
+            box-shadow: 0 10px 15px -10px rgba(164, 189, 252, 0.1);
+            outline: none;
+        }
+        
+        input.form-input:focus + .input-icon {
+            color: var(--primary-color);
+        }
+
+        input.form-input::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 0.85rem;
+        }
+
+        /* === 修复：邮箱行的布局 === */
+        /* 使用 Flexbox 将输入框和按钮分开 */
+        .email-row-layout {
+            display: flex;
+            align-items: center;
+            gap: 12px; /* 按钮和输入框的间距 */
+            width: 100%;
+        }
+
+        /* 输入框部分占据剩余空间 */
+        .email-input-part {
+            flex: 1;
+            position: relative; /* 维持 input-icon 的定位上下文 */
+        }
+
+        /* 独立的圆形发送按钮 */
+        .btn-send-code-circle {
+            width: 42px;
+            height: 42px;
+            flex-shrink: 0; /* 防止被挤压 */
+            border-radius: 50%;
+            background: rgba(164, 189, 252, 0.2); /* 默认淡蓝色背景 */
+            border: 1px solid rgba(164, 189, 252, 0.4);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .btn-send-code-circle:hover {
+            background: var(--primary-color);
+            transform: scale(1.1) rotate(-15deg); /* 悬停时稍微旋转增加动感 */
+            box-shadow: 0 0 15px rgba(164, 189, 252, 0.6);
+        }
+
+        .btn-send-code-circle:active {
+            transform: scale(0.95);
+        }
+
+        .btn-send-code-circle i {
+            font-size: 1rem;
+            margin-left: -2px; /* 视觉微调，让纸飞机看起来居中 */
+        }
+
+        /* === 底部按钮 === */
+        .form-actions {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 10px;
+            gap: 20px;
+        }
+
+        #registerButton {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(164, 189, 252, 0.1);
+            transition: all 0.3s;
+            animation: pulse-glow 3s infinite;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+
+        #registerButton:hover {
+            transform: scale(1.1);
+            background: var(--primary-color);
+            box-shadow: 0 0 25px rgba(164, 189, 252, 0.6);
+            border-color: transparent;
+        }
+
+        #registerButton i { font-size: 1.4rem; color: #fff; }
+        #registerButton span { display: none; }
+
+        #backToLoginButton {
+            background: none !important;
+            border: none !important;
+            color: var(--text-muted) !important;
+            font-size: 0.8rem !important;
+            cursor: pointer;
+            padding: 5px 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        #backToLoginButton:hover { color: #fff !important; }
+
+        #errorMessage {
+            margin-top: 15px;
+            text-align: center;
+            font-size: 0.85rem;
+            color: #ff6b6b;
+            min-height: 20px;
+        }
+        .success-message { color: #4cd137 !important; }
+
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 0 0 rgba(164, 189, 252, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(164, 189, 252, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(164, 189, 252, 0); }
+        }
+
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover, 
+        input:-webkit-autofill:focus {
+            -webkit-text-fill-color: white;
+            -webkit-box-shadow: 0 0 0px 1000px transparent inset;
+            transition: background-color 5000s ease-in-out 0s;
+        }
+    </style>
+</head>
+
+<body class="login register-page">
+    <div id="shadow_popup">
+        <div id="dialogue_popup">
+            
+            <div class="register-header">
+                <div class="register-logo">
+                    <img src="img/logo.png" alt="SillyTavern" style="width: 60px; height: 60px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));">
+                </div>
+                <h1 class="register-title">创建账户</h1>
+                <p class="register-subtitle">加入沉浸式 AI 对话</p>
+            </div>
+
+            <form id="registerForm" class="register-form">
+                
+                <div class="form-group">
+                    <div class="input-icon-wrapper">
+                        <input id="displayName" class="form-input" type="text" placeholder="昵称 / Display Name" autocomplete="name" required>
+                        <i class="fa-solid fa-id-card input-icon"></i>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="input-icon-wrapper">
+                        <input id="userHandle" class="form-input" type="text" placeholder="用户名 (英文/数字)" autocomplete="username" required>
+                        <i class="fa-solid fa-user input-icon"></i>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="input-icon-wrapper">
+                        <input id="userPassword" class="form-input" type="password" placeholder="密码 (至少6位)" autocomplete="new-password" required>
+                        <i class="fa-solid fa-lock input-icon"></i>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="input-icon-wrapper">
+                        <input id="confirmPassword" class="form-input" type="password" placeholder="确认密码" autocomplete="new-password" required>
+                        <i class="fa-solid fa-check-double input-icon"></i>
+                    </div>
+                </div>
+
+                <div class="form-section" id="emailSection">
+                    
+                    <div class="form-group" id="emailGroup">
+                        <div class="email-row-layout">
+                            <div class="email-input-part input-icon-wrapper">
+                                <input id="userEmail" class="form-input" type="email" placeholder="电子邮箱" autocomplete="email" required>
+                                <i class="fa-solid fa-envelope input-icon"></i>
+                            </div>
+                            
+                            <button type="button" id="sendVerificationButton" class="btn-send-code-circle" title="发送验证码">
+                                <i class="fa-solid fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="verificationCodeGroup">
+                        <div class="input-icon-wrapper">
+                            <input id="verificationCode" class="form-input code-input" type="text" placeholder="输入6位验证码" autocomplete="off" required maxlength="6">
+                            <i class="fa-solid fa-shield-halved input-icon"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section" id="invitationSection" style="display: none;">
+                    <div class="form-group" id="invitationCodeGroup">
+                        <div class="input-icon-wrapper">
+                            <input id="invitationCode" class="form-input" type="text" placeholder="邀请码" autocomplete="off">
+                            <i class="fa-solid fa-ticket input-icon"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" id="registerButton" title="立即注册">
+                        <i class="fa-solid fa-arrow-right"></i>
+                        <span>注册</span>
+                    </button>
+                    
+                    <button type="button" id="backToLoginButton">
+                        <i class="fa-solid fa-arrow-left"></i> 返回登录
+                    </button>
+                </div>
+            </form>
+
+            <div id="errorMessage" class="message-box"></div>
+        </div>
+    </div>
+
+    <script src="lib/jquery-3.5.1.min.js"></script>
+    <script src="scripts/register.js"></script>
+    <script>
+        function adjustLayout() {
+            if(window.visualViewport) {
+                const viewportHeight = window.visualViewport.height;
+                const popup = document.getElementById('dialogue_popup');
+                if (popup) {
+                    popup.style.maxHeight = `${viewportHeight - 40}px`;
+                }
+            }
+        }
+        window.visualViewport?.addEventListener('resize', adjustLayout);
+        window.addEventListener('resize', adjustLayout);
+        adjustLayout();
+    </script>
+</body>
+</html>

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>SillyTavern - Welcome</title>
+    
+    <link rel="stylesheet" href="css/fontawesome.min.css">
+    <link rel="stylesheet" href="css/solid.min.css">
+    <link rel="stylesheet" href="css/regular.min.css">
+    
+    <style>
+        :root {
+            --accent-color: #5c7cfa;
+            --accent-glow: rgba(92, 124, 250, 0.6);
+            --text-white: #ffffff;
+            --text-gray: rgba(255, 255, 255, 0.7);
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: 'Noto Sans', sans-serif;
+            background-color: transparent; 
+            overflow: hidden;
+        }
+
+        /* 背景层 */
+        #bg1 {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background-image: url('/img/welcome_bg.jpg');
+            background-size: cover;
+            background-position: center;
+            filter: brightness(0.85);
+        }
+
+        /* 内容层：层级必须高于背景 */
+        #welcome_container {
+            position: absolute;
+            inset: 0;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 80px 20px 50px;
+        }
+
+        .header-area {
+            text-align: center;
+            text-shadow: 0 4px 15px rgba(0,0,0,0.8);
+        }
+
+        .app-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--text-white);
+            margin: 0;
+            letter-spacing: 3px;
+        }
+
+        .app-slogan {
+            font-size: 0.75rem;
+            color: var(--text-gray);
+            margin-top: 5px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* 底部操作区容器 */
+        .bottom-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        /* 登录小圆按钮 */
+        .login-btn-mini {
+            width: 55px;
+            height: 55px;
+            background: var(--accent-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: white;
+            box-shadow: 0 0 25px var(--accent-glow);
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-bottom: 35px;
+            position: relative;
+            
+            /* 呼吸动画 */
+            animation: pulse-glow 3s infinite;
+        }
+
+        .login-btn-mini i {
+            font-size: 20px;
+        }
+
+        .login-btn-mini:active {
+            transform: scale(0.9);
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        /* 次级菜单容器 */
+        .sub-menu-row {
+            display: flex;
+            justify-content: center;
+            gap: 45px;
+        }
+
+        /* 次级图标样式 */
+        .icon-link {
+            text-decoration: none;
+            color: rgba(255, 255, 255, 0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 10px;
+            gap: 5px;
+            transition: all 0.2s;
+        }
+
+        .icon-link i {
+            font-size: 16px;
+        }
+
+        .icon-link:active, .icon-link:hover {
+            color: #fff;
+            transform: scale(1.1);
+        }
+
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 15px var(--accent-glow); }
+            50% { box-shadow: 0 0 35px rgba(92, 124, 250, 0.8); transform: scale(1.05); }
+            100% { box-shadow: 0 0 15px var(--accent-glow); }
+        }
+        
+        @media (min-width: 768px) {
+            .app-title { font-size: 3rem; }
+            .login-btn-mini { width: 65px; height: 65px; }
+            .login-btn-mini i { font-size: 24px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="bg1"></div>
+
+    <div id="welcome_container">
+        
+        <div class="header-area">
+            <h1 class="app-title">SILLYTAVERN</h1>
+            <p class="app-slogan">Immersive AI Chat</p>
+        </div>
+
+        <div class="bottom-area">
+            
+            <a href="/login" class="login-btn-mini">
+                <i class="fa-solid fa-arrow-right"></i>
+            </a>
+
+            <div class="sub-menu-row">
+                <a href="/register" class="icon-link">
+                    <i class="fa-solid fa-user-plus"></i>
+                    <span>注册</span>
+        

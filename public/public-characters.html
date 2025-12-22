@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <base href="/">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="robots" content="noindex, nofollow" />
+    
+    <title>SillyTavern - 角色画廊</title>
+
+    <link rel="preload" as="style" href="style.css">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    
+    <link rel="stylesheet" href="css/fontawesome.min.css">
+    <link rel="stylesheet" href="css/solid.min.css">
+    <link rel="stylesheet" href="css/brands.min.css">
+
+    <link href="webfonts/NotoSans/stylesheet.css" rel="stylesheet">
+    
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" type="text/css" href="css/public-characters.css">
+
+    <style>
+        /* ==============================
+           角色画廊 - 沉浸式 ACGN 风格
+           ============================== */
+        
+        :root {
+            --primary-color: #a4bdfc;
+            --glass-bg: rgba(30, 30, 35, 0.6);
+            --glass-panel: rgba(20, 20, 25, 0.85); /* 较深的面板背景 */
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text-main: #ffffff;
+            --text-sub: rgba(255, 255, 255, 0.7);
+            --card-radius: 16px;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Noto Sans', sans-serif;
+            background-color: #1a1b26;
+            background-image: url('/img/welcome_bg.jpg'); /* 延续统一背景 */
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: var(--text-main);
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* 移除原有容器背景 */
+        .public-characters-container {
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            background: transparent;
+        }
+
+        /* === 1. 顶部透明导航栏 (Header) === */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 100%);
+            pointer-events: none; /* 让点击穿透，不阻挡背景 */
+        }
+
+        .header-content {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            pointer-events: auto; /* 恢复内容点击 */
+        }
+
+        .header-branding {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            letter-spacing: 1px;
+        }
+
+        .header-subtitle {
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.8);
+            margin: 0;
+            display: none; /* 移动端隐藏副标题 */
+        }
+
+        /* 顶部右侧圆形图标组 */
+        .header-actions-group {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: all 0.2s;
+            font-size: 1rem;
+        }
+
+        .icon-btn:hover {
+            background: var(--primary-color);
+            transform: scale(1.1);
+            border-color: transparent;
+        }
+
+        /* 原有按钮隐藏，通过JS或CSS映射 */
+        #uploadButton { display: none !important; } /* 移动到FAB */
+        .login-text { display: none; } /* 隐藏冗余文字 */
+        
+        .user-greeting {
+            font-size: 0.8rem;
+            margin-right: 10px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+        }
+
+        /* === 2. 悬浮胶囊搜索栏 (Search) === */
+        .search-section {
+            padding: 10px 20px;
+            position: sticky;
+            top: 70px; /* Header下 */
+            z-index: 90;
+            pointer-events: none;
+        }
+
+        .search-container {
+            max-width: 600px;
+            margin: 0 auto;
+            pointer-events: auto;
+            display: flex;
+            gap: 10px;
+        }
+
+        .search-box {
+            flex: 1;
+            background: rgba(30, 30, 35, 0.6);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 50px;
+            height: 46px;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+        }
+
+        .search-box:focus-within {
+            background: rgba(40, 40, 45, 0.85);
+            border-color: var(--primary-color);
+            box-shadow: 0 8px 25px rgba(164, 189, 252, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .search-icon {
+            color: var(--text-sub);
+            margin-right: 10px;
+        }
+
+        .search-input {
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-size: 0.95rem;
+            width: 100%;
+            outline: none;
+        }
+
+        /* 筛选按钮 (圆形小图标) */
+        .filter-toggle {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            background: rgba(30, 30, 35, 0.6);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            cursor: pointer;
+        }
+
+        /* 隐藏原生的丑陋 Select，后续用 JS 美化，或者简单地让它覆盖在图标上 */
+        .filter-container {
+            position: relative;
+            width: 46px;
+            height: 46px;
+        }
+        
+        #sortSelect {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0; /* 透明 */
+            cursor: pointer;
+            z-index: 2;
+        }
+
+        /* === 3. 角色网格 (The Grid) === */
+        .characters-grid {
+            flex: 1;
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            box-sizing: border-box;
+            
+            display: grid;
+            /* 移动端双列，PC端自适应 */
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 15px;
+            align-content: start;
+        }
+
+        @media (min-width: 768px) {
+            .characters-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 25px;
+            }
+            .header-subtitle { display: block; }
+        }
+
+        /* 注意：这里定义的是卡片的样式。
+           JS 生成的 HTML 需要匹配这些类名，或者我们后续修改 JS 来匹配这里。
+           为了兼容现有 JS，我们尽量通用化，但假设每个卡片是一个 DIV。
+        */
+        .characters-grid > div {
+            background: rgba(30, 30, 35, 0.4); /* 卡片底色 */
+            backdrop-filter: blur(5px);
+            border-radius: var(--card-radius);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            overflow: hidden;
+            position: relative;
+            transition: transform 0.2s;
+            aspect-ratio: 2 / 3; /* 强制竖向比例 */
+            cursor: pointer;
+        }
+
+        .characters-grid > div:active {
+            transform: scale(0.96);
+        }
+
+        /* 强制图片填满 */
+        .characters-grid img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* 卡片上的文字遮罩 (假定 JS 生成结构里有 .info 或类似) */
+        /* 由于不知道具体 JS 生成的结构，这里写一些通配样式 */
+        .character-card-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+            padding: 40px 10px 10px 10px;
+            color: #fff;
+            pointer-events: none;
+        }
+
+        /* === 4. FAB 悬浮操作按钮 (Upload) - 已移除，保留占位防止报错 === */
+        /* 
+        .fab-upload { ... } 
+        */
+
+        /* === 5. 模态框 (Modal) - 底部抽屉样式 === */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6); /* 深色遮罩 */
+            backdrop-filter: blur(3px);
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        
+        .modal[style*="display: block"], 
+        .modal[style*="display: flex"] {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            background: var(--glass-panel);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            color: #fff;
+            width: 90%;
+            max-width: 500px;
+            max-height: 85vh;
+            border-radius: 20px;
+            padding: 25px;
+            overflow-y: auto;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            position: relative;
+            /* 动画 */
+            transform: translateY(20px);
+            transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        /* 详情页模态框 - 移动端底部抽屉 */
+        @media (max-width: 768px) {
+            /* 移除特殊的底部抽屉样式，使其复用默认的居中模态框样式 */
+        }
+
+        /* 自定义文件上传按钮 */
+        .file-upload-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 12px;
+            background: rgba(164, 189, 252, 0.1);
+            border: 1px dashed var(--primary-color);
+            border-radius: 12px;
+            color: var(--primary-color);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 600;
+            margin-top: 5px;
+        }
+        .file-upload-btn:hover {
+            background: rgba(164, 189, 252, 0.2);
+            border-style: solid;
+        }
+        .file-upload-btn i { font-size: 1.2rem; }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 10px;
+        }
+
+        .modal-header h2 { margin: 0; font-size: 1.2rem; }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.5);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        /* 表单样式复用之前 Login 的风格 */
+        .form-group { margin-bottom: 15px; }
+        .form-label { display: block; margin-bottom: 5px; color: var(--text-sub); font-size: 0.9rem; }
+        .form-input, .form-textarea {
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 10px;
+            border-radius: 8px;
+            color: #fff;
+            box-sizing: border-box;
+        }
+        .form-input:focus { border-color: var(--primary-color); outline: none; }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: #1a1b26;
+        }
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+
+        /* 详情页布局 */
+        .character-detail {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 20px;
+        }
+        .character-avatar img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%; /* 圆形头像 */
+            object-fit: cover;
+            border: 3px solid var(--primary-color);
+            box-shadow: 0 0 20px rgba(164, 189, 252, 0.3);
+        }
+        .character-meta {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            font-size: 0.8rem;
+            color: var(--text-sub);
+            flex-wrap: wrap;
+        }
+        .character-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        .tag-pill {
+            background: rgba(255,255,255,0.1);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+        }
+        .character-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        /* 评论区样式 */
+        .comments-section { margin-top: 30px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; }
+        .comment-item {
+            background: rgba(255,255,255,0.05);
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+
+        /* 加载更多 */
+        .load-more-container { text-align: center; padding: 30px; }
+        
+        /* Loading 动画 */
+        .loading-indicator {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 50px;
+            color: var(--text-sub);
+        }
+        .spinner {
+            width: 30px;
+            height: 30px;
+            border: 3px solid rgba(255,255,255,0.1);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 10px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+    </style>
+</head>
+
+<body class="public-characters-page">
+    <div class="public-characters-container">
+        
+        <header class="header">
+            <div class="header-content">
+                <div class="header-branding">
+                    <h1 class="header-title">角色画廊</h1>
+                    <p class="header-subtitle">Public Library</p>
+                </div>
+                
+                <div class="header-actions-group">
+                    
+                    <div id="userInfo" style="display: none; align-items: center; margin-right: 10px;">
+                        <span class="user-greeting" id="userName" style="font-size: 0.9rem; font-weight: 600; text-shadow: 0 1px 2px black;"></span>
+                    </div>
+
+                    <button id="headerUploadButton" class="icon-btn" style="display: none; background: var(--primary-color); border: 1px solid rgba(255,255,255,0.3);" title="上传角色卡">
+                        <i class="fa-solid fa-plus"></i>
+                    </button>
+
+                    <a href="/" class="icon-btn" title="返回我的角色库">
+                        <i class="fa-solid fa-layer-group"></i>
+                    </a>
+
+                    <div id="loginPrompt" style="display: flex;">
+                        <a href="/login" class="icon-btn" title="登录" style="background: rgba(255,255,255,0.1);">
+                            <i class="fa-solid fa-right-to-bracket"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="search-section">
+            
+            <div class="category-tabs">
+                <button class="cat-btn active" data-category="all">
+                    <i class="fa-solid fa-layer-group"></i> 全部
+                </button>
+                <button class="cat-btn" data-category="male_oriented">
+                    <i class="fa-solid fa-mars"></i> 男性向
+                </button>
+                <button class="cat-btn" data-category="female_oriented">
+                    <i class="fa-solid fa-venus"></i> 女性向
+                </button>
+            </div>
+
+            <div class="search-container">
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="text" id="searchInput" class="search-input" placeholder="搜索角色 / 标签...">
+                </div>
+                
+                <div class="filter-container">
+                    <div class="filter-toggle">
+                        <i class="fa-solid fa-filter"></i>
+                    </div>
+                    <select id="sortSelect" class="filter-select">
+                        <option value="date">最新上传</option>
+                        <option value="name">名称排序</option>
+                        <option value="uploader">上传者</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <main class="characters-grid" id="charactersGrid">
+            </main>
+
+        <div class="load-more-container">
+            <button id="loadMoreButton" class="btn btn-secondary" style="display: none;">
+                加载更多...
+            </button>
+        </div>
+
+        <div id="loadingIndicator" class="loading-indicator" style="display: none;">
+            <div class="spinner"></div>
+            <p>载入中...</p>
+        </div>
+
+        <div id="uploadModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>上传角色</h2>
+                    <button class="modal-close" id="closeUploadModal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="uploadForm">
+                        <div class="form-group">
+                            <label class="form-label">第一步：选择卡片文件 *</label>
+                            <label for="characterFile" class="file-upload-btn">
+                                <i class="fa-solid fa-file-import"></i>
+                                <span id="fileNameDisplay">点击选择角色卡 (PNG, JSON, YAML)</span>
+                            </label>
+                            <input type="file" id="characterFile" accept=".json,.png,.yaml,.yml" required style="display: none;">
+                        </div>
+                        <div class="form-group">
+                            <input type="text" id="characterName" class="form-input" placeholder="角色名称" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">目标受众 (分类)</label>
+                            <div class="radio-group">
+                                <label class="radio-label">
+                                    <input type="radio" name="target_audience" value="男性向" checked>
+                                    <span class="radio-custom"><i class="fa-solid fa-mars"></i> 男性向</span>
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="target_audience" value="女性向">
+                                    <span class="radio-custom"><i class="fa-solid fa-venus"></i> 女性向</span>
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="target_audience" value="一般向">
+                                    <span class="radio-custom"><i class="fa-solid fa-user-group"></i> 一般向</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <textarea id="characterDescription" class="form-textarea" placeholder="描述..." rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" id="characterTags" class="form-input" placeholder="标签 (逗号分隔)">
+                        </div>
+                        <div class="form-actions" style="display: flex; gap: 10px; margin-top: 20px;">
+                            <button type="submit" class="btn btn-primary" style="flex: 1;">上传</button>
+                            <button type="button" class="btn btn-secondary" id="cancelUpload" style="flex: 1;">取消</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div id="characterModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="characterModalTitle">详情</h2>
+                    <button class="modal-close" id="closeCharacterModal">&times;</button>
+                </div>
+                
+                <div class="modal-body">
+                    <div class="character-detail">
+                        <div class="character-avatar">
+                            <img id="characterModalAvatar" src="" alt="Avatar">
+                        </div>
+                        
+                        <div class="character-info" style="width: 100%;">
+                            <h3 id="characterModalName" style="font-size: 1.4rem; margin: 0 0 5px 0;"></h3>
+                            <p id="characterModalDescription" style="color: rgba(255,255,255,0.8); font-size: 0.9rem; margin-bottom: 15px;"></p>
+                            
+                            <div class="character-meta">
+                                <span><i class="fa-solid fa-user"></i> <span id="characterModalUploader"></span></span>
+                                <span><i class="fa-solid fa-clock"></i> <span id="characterModalDate"></span></span>
+                            </div>
+                            
+                            <div class="character-tags" id="characterModalTags"></div>
+                        </div>
+                    </div>
+
+                    <div class="character-actions">
+                        <button id="importCharacterButton" class="btn btn-primary">
+                            <i class="fa-solid fa-cloud-arrow-down"></i> 导入
+                        </button>
+                        <button id="viewCharacterButton" class="btn btn-secondary">
+                            <i class="fa-solid fa-eye"></i> 查看卡片
+                        </button>
+                    </div>
+
+                    <div class="comments-section">
+                        <div class="comments-header" style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                            <span style="font-weight: bold;"><i class="fa-solid fa-comments"></i> 评论</span>
+                            <span id="commentsCount" style="color: var(--text-sub); font-size: 0.8rem;">0</span>
+                        </div>
+
+                        <div id="commentInputSection" style="display: none; margin-bottom: 15px;">
+                            <div style="display: flex; gap: 10px;">
+                                <textarea id="commentInput" class="form-textarea" placeholder="说点什么..." rows="1" style="resize: none;"></textarea>
+                                <button id="submitCommentButton" class="icon-btn" style="background: var(--primary-color); width: 42px; height: 42px;">
+                                    <i class="fa-solid fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="commentLoginPrompt" style="text-align: center; padding: 20px; background: rgba(255,255,255,0.05); border-radius: 10px;">
+                            <span style="font-size: 0.85rem; color: var(--text-sub);">登录后参与讨论</span>
+                        </div>
+
+                        <div id="commentsList" class="comments-list"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="lib/jquery-3.5.1.min.js"></script>
+    <script src="scripts/public-characters.js"></script>
+</body>
+</html>

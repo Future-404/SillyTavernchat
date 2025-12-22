@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <base href="/">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="robots" content="noindex, nofollow" />
+    
+    <title>SillyTavern - 登录</title>
+
+    <link rel="preload" as="style" href="style.css">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    
+    <link rel="stylesheet" href="css/fontawesome.min.css">
+    <link rel="stylesheet" href="css/solid.min.css">
+    <link rel="stylesheet" href="css/brands.min.css">
+
+    <link href="webfonts/NotoSans/stylesheet.css" rel="stylesheet">
+    
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" type="text/css" href="css/login.css">
+
+    <style>
+        /* ==============================
+           最终版风格：悬浮极简
+           ============================== */
+        
+        :root {
+            --primary-color: #a4bdfc;
+            --glass-bg: rgba(30, 30, 35, 0.65); /* 稍微加深一点点以增加对比 */
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --input-underline: rgba(255, 255, 255, 0.3);
+            --text-main: #ffffff;
+            --text-muted: rgba(255, 255, 255, 0.6);
+        }
+
+        body.login {
+            margin: 0;
+            padding: 0;
+            font-family: 'Noto Sans', sans-serif;
+            background-color: #1a1b26;
+            background-image: url('/img/welcome_bg.jpg'); 
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* 移除原有遮罩 */
+        body.login::before { display: none; }
+        
+        #shadow_popup {
+            position: relative !important;
+            background: transparent !important;
+            display: flex !important;
+            flex-direction: column; /* 垂直排列：卡片在上，OAuth在下 */
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            opacity: 1 !important;
+        }
+
+        /* === 极简卡片 === */
+        #dialogue_popup {
+            position: relative !important;
+            left: auto !important;
+            top: auto !important;
+            transform: none !important;
+            margin: 0 !important;
+            
+            width: 80%; 
+            max-width: 320px; /* 稍微调窄一点，显得更精致 */
+            
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px); 
+            -webkit-backdrop-filter: blur(10px);
+            
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            
+            padding: 40px 30px 30px 30px; /* 底部padding减少，因为按钮在里面 */
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 10;
+        }
+
+        /* Logo 区域 */
+        #logoBlock {
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+        #logoBlock img.logo {
+            max-width: 65px;
+            max-height: 65px;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
+        }
+        #logoBlock span {
+            font-size: 1.1rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            color: #fff;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.4);
+        }
+
+        h3 { display: none; }
+
+        /* === 输入框 === */
+        input.text_pole {
+            width: 100% !important;
+            background: transparent !important;
+            border: none !important;
+            border-bottom: 1px solid var(--input-underline) !important;
+            border-radius: 0 !important;
+            padding: 10px 5px !important;
+            color: white !important;
+            font-size: 1rem !important;
+            margin-bottom: 25px !important;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        input.text_pole::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.9rem;
+        }
+
+        input.text_pole:focus {
+            border-bottom-color: var(--primary-color) !important;
+            box-shadow: 0 10px 20px -10px rgba(164, 189, 252, 0.2);
+            outline: none;
+        }
+
+        /* === 按钮布局 === */
+        .flex-container.flexGap10 { display: contents; }
+
+        .sub-actions-row {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 25px;
+            padding: 0 5px;
+            box-sizing: border-box;
+        }
+
+        .text-link {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        .text-link:hover { color: #fff; }
+
+        /* 登录按钮 - 圆形 */
+        #loginButton {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255,255,255,0.2);
+            backdrop-filter: blur(5px);
+            
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto; 
+            
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(164, 189, 252, 0.1);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            
+            animation: pulse-glow 3s infinite;
+        }
+
+        #loginButton:hover {
+            transform: scale(1.1);
+            background: var(--primary-color);
+            box-shadow: 0 0 25px rgba(164, 189, 252, 0.6);
+            border-color: transparent;
+        }
+        
+        #loginButton i { font-size: 1.4rem; color: #fff; }
+        #loginButton span { display: none; }
+
+        /* === 卡片外部：OAuth 悬浮区 === */
+        #external-oauth-container {
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            z-index: 10;
+            animation: fadeInUp 0.8s ease-out 0.2s backwards;
+        }
+
+        .oauth-floating-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            /* 背景稍微暗一点，为了在亮色壁纸上也看得清 */
+            background: rgba(0, 0, 0, 0.4); 
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            color: rgba(255,255,255,0.8);
+            transition: all 0.2s;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .oauth-floating-btn:hover {
+            background: rgba(255,255,255,0.2);
+            color: #fff;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+
+        /* 彻底隐藏区 */
+        #hidden-functionality-layer {
+            position: absolute;
+            top: -9999px;
+            left: -9999px;
+            width: 0;
+            height: 0;
+            overflow: hidden;
+            visibility: hidden;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* 动画 */
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 0 0 rgba(164, 189, 252, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(164, 189, 252, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(164, 189, 252, 0); }
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        #errorMessage {
+            position: absolute;
+            top: 15px;
+            width: 100%;
+            text-align: center;
+            color: #ff6b6b;
+            font-size: 0.85rem;
+            text-shadow: 0 1px 2px black;
+        }
+    </style>
+</head>
+
+<body class="login">
+    <div id="shadow_popup">
+        
+        <div id="dialogue_popup">
+            <div id="dialogue_popup_holder" style="width: 100%;">
+                <div id="dialogue_popup_text">
+                    
+                    <div id="userSelectBlock" class="flex-container flexFlowColumn alignItemsCenter">
+                        
+                        <h2 id="logoBlock" class="flex-container">
+                            <img src="img/logo.png" alt="SillyTavern" class="logo">
+                            <span>SillyTavern</span>
+                        </h2>
+
+                        <div id="userListBlock" class="wide100p">
+                            <div id="userList" class="flex-container justifySpaceEvenly"></div>
+
+                            <div id="handleEntryBlock" style="display:none;" class="flex-container flexFlowColumn alignItemsCenter">
+                                <input id="userHandle" class="text_pole" type="text" placeholder="Username" autocomplete="username">
+                            </div>
+                            
+                            <div id="passwordEntryBlock" style="display:none; width: 100%;">
+                                <input id="userPassword" class="text_pole" type="password" placeholder="Password" autocomplete="current-password">
+                                
+                                <div class="sub-actions-row">
+                                    <a class="text-link" onclick="document.getElementById('registerButton').click()">注册账号</a>
+                                    <a class="text-link" onclick="document.getElementById('recoverPassword').click()">忘记密码?</a>
+                                </div>
+
+                                <div id="loginButton" title="登录">
+                                    <i class="fa-solid fa-arrow-right"></i>
+                                    <span>登录</span>
+                                </div>
+                            </div>
+
+                            <div id="passwordRecoveryBlock" style="display:none;" class="flex-container flexFlowColumn alignItemsCenter">
+                                <div style="margin-bottom: 15px; font-size: 0.8rem; opacity: 0.8; text-align: center;">请查看控制台获取恢复码</div>
+                                <input id="recoveryCode" class="text_pole" type="text" placeholder="Recovery Code">
+                                <input id="newPassword" class="text_pole" type="password" placeholder="New Password" autocomplete="new-password">
+                                <div style="display: flex; gap: 20px; width: 100%; justify-content: center; margin-top: 10px;">
+                                    <div id="sendRecovery" class="text-link" style="font-size: 1rem; color: var(--primary-color);">确认</div>
+                                    <div id="cancelRecovery" class="text-link" style="font-size: 1rem;">取消</div>
+                                </div>
+                            </div>
+                            
+                            <div id="renewalBlock" class="wide100p" style="display:none; margin-top: 20px;">
+                                <div class="flex-container flexFlowColumn alignItemsCenter">
+                                    <h3 style="display:block; color: #ff6b81; font-size: 0.9rem; margin-bottom: 10px;">账户已过期</h3>
+                                    <input id="renewalCode" class="text_pole" type="text" placeholder="续费码">
+                                    <div style="display: flex; gap: 20px;">
+                                        <div id="submitRenewal" class="text-link" style="color: #ff6b81;">提交</div>
+                                        <div id="cancelRenewal" class="text-link">取消</div>
+                                    </div>
+                                    <a id="renewalPurchaseLinkUrl" href="#" target="_blank" style="display:none;"></a>
+                                </div>
+                            </div>
+
+                            <div class="neutral_warning" id="errorMessage"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="external-oauth-container">
+            <div class="oauth-floating-btn" onclick="document.getElementById('githubLoginButton').click()" title="GitHub Login">
+                <i class="fa-brands fa-github"></i>
+            </div>
+            <div class="oauth-floating-btn" onclick="document.getElementById('discordLoginButton').click()" title="Discord Login">
+                <i class="fa-brands fa-discord"></i>
+            </div>
+            <div class="oauth-floating-btn" onclick="document.getElementById('linuxdoLoginButton').click()" title="Linux.do Login">
+               <i class="fa-brands fa-linux"></i>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="hidden-functionality-layer" style="display: none !important;">
+        <button id="registerButton"></button>
+        <a id="recoverPassword" href="#"></a>
+        <button id="githubLoginButton"></button>
+        <button id="discordLoginButton"></button>
+        <button id="linuxdoLoginButton"></button>
+        <div id="oauthButtons"></div>
+    </div>
+
+    <script src="lib/jquery-3.5.1.min.js"></script>
+    <script src="scripts/login.js" type="module"></script>
+</body>
+</html>
