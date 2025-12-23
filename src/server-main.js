@@ -94,7 +94,7 @@ if (!cliArgs.enableIPv6 && !cliArgs.enableIPv4) {
 }
 
 const app = express();
-app.set('trust proxy', true);
+app.set('trust proxy', 1);
 app.use(helmet({
     contentSecurityPolicy: false,
 }));
@@ -141,7 +141,6 @@ app.use(cookieSession({
     name: getCookieSessionName(),
     sameSite: 'lax',
     httpOnly: true,
-    secure: false,
     maxAge: getSessionCookieAge(),
     secret: getCookieSecret(globalThis.DATA_ROOT),
 }));
@@ -223,6 +222,7 @@ app.get('/', cacheBuster.middleware, (request, response) => {
     return response.sendFile('welcome.html', { root: path.join(serverDirectory, 'public') });
 });
 
+// Explicit welcome route
 app.get('/welcome', (request, response) => {
     return response.sendFile('welcome.html', { root: path.join(serverDirectory, 'public') });
 });

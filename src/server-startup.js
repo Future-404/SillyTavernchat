@@ -187,11 +187,15 @@ export function setupPrivateEndpoints(app) {
     app.use('/api/azure', azureRouter);
     app.use('/api/minimax', minimaxRouter);
     app.use('/api/data-maid', dataMaidRouter);
-
+    
+    // We removed forumRouter registration here to move it to server-main.js
+    
     app.use('/api/invitation-codes', invitationCodesRouter);
     app.use('/api/email-config', emailConfigRouter);
     app.use('/api/oauth-config', oauthConfigRouter);
     app.use('/api/system-load', systemLoadRouter);
+
+    // We removed publicCharactersRouter registration here to move it to server-main.js
 
     app.use('/api/announcements', announcementsRouter);
     app.use('/api/public-config', publicConfigRouter);
