@@ -8,6 +8,7 @@ services:
     environment:
       - NODE_ENV=production
       - FORCE_COLOR=1
+      - MONGODB_URI=${MONGODB_URI}
     ports:
       - "18000:8000"
     
@@ -19,3 +20,9 @@ services:
       - "./src:/home/node/app/src"
       - "./server.js:/home/node/app/server.js"
     restart: unless-stopped
+    networks:
+      - 1panel-network
+
+networks:
+  1panel-network:
+    external: true

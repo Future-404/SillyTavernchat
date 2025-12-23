@@ -57,6 +57,7 @@ import { router as emailConfigRouter } from './endpoints/email-config.js';
 import { router as oauthRouter } from './endpoints/oauth.js';
 import { router as oauthConfigRouter } from './endpoints/oauth-config.js';
 import { router as scheduledTasksRouter } from './endpoints/scheduled-tasks.js';
+import { connectDatabase } from './database.js';
 import { getConfigValue } from './util.js';
 
 /**
@@ -186,22 +187,11 @@ export function setupPrivateEndpoints(app) {
     app.use('/api/azure', azureRouter);
     app.use('/api/minimax', minimaxRouter);
     app.use('/api/data-maid', dataMaidRouter);
-    // 根据配置控制论坛API路由
-    const enableForum = getConfigValue('enableForum', true, 'boolean');
-    if (enableForum) {
-        app.use('/api/forum', forumRouter);
-    }
 
     app.use('/api/invitation-codes', invitationCodesRouter);
     app.use('/api/email-config', emailConfigRouter);
     app.use('/api/oauth-config', oauthConfigRouter);
     app.use('/api/system-load', systemLoadRouter);
-
-    // 根据配置控制角色卡分享API路由
-    const enablePublicCharacters = getConfigValue('enablePublicCharacters', true, 'boolean');
-    if (enablePublicCharacters) {
-        app.use('/api/public-characters', publicCharactersRouter);
-    }
 
     app.use('/api/announcements', announcementsRouter);
     app.use('/api/public-config', publicConfigRouter);
@@ -369,6 +359,9 @@ export class ServerStartup {
      * @returns {Promise<ServerStartupResult>} A promise that resolves with an object containing the results of the server startup
      */
     async start() {
+        // Connect to MongoDB
+        await connectDatabase();
+
         let useIPv6 = (this.cliArgs.enableIPv6 === true);
         let useIPv4 = (this.cliArgs.enableIPv4 === true);
 

@@ -7,7 +7,8 @@
     
     <link rel="stylesheet" href="css/fontawesome.min.css">
     <link rel="stylesheet" href="css/solid.min.css">
-    <link rel="stylesheet" href="css/regular.min.css">
+    <link rel="stylesheet" href="css/brands.min.css">
+    <link href="webfonts/NotoSans/stylesheet.css" rel="stylesheet">
     
     <style>
         :root {
@@ -115,28 +116,30 @@
         .sub-menu-row {
             display: flex;
             justify-content: center;
-            gap: 45px;
+            gap: 30px; /* 减小间距以适应更多按钮 */
+            flex-wrap: wrap;
         }
 
         /* 次级图标样式 */
         .icon-link {
             text-decoration: none;
-            color: rgba(255, 255, 255, 0.5);
+            color: rgba(255, 255, 255, 0.6);
             display: flex;
             flex-direction: column;
             align-items: center;
-            font-size: 10px;
-            gap: 5px;
+            font-size: 11px;
+            gap: 6px;
             transition: all 0.2s;
+            min-width: 60px;
         }
 
         .icon-link i {
-            font-size: 16px;
+            font-size: 18px;
         }
 
         .icon-link:active, .icon-link:hover {
             color: #fff;
-            transform: scale(1.1);
+            transform: translateY(-2px);
         }
 
         @keyframes pulse-glow {
@@ -149,6 +152,9 @@
             .app-title { font-size: 3rem; }
             .login-btn-mini { width: 65px; height: 65px; }
             .login-btn-mini i { font-size: 24px; }
+            .sub-menu-row { gap: 50px; }
+            .icon-link { font-size: 12px; }
+            .icon-link i { font-size: 20px; }
         }
     </style>
 </head>
@@ -165,7 +171,7 @@
 
         <div class="bottom-area">
             
-            <a href="/login" class="login-btn-mini">
+            <a href="/login" class="login-btn-mini" title="去登录">
                 <i class="fa-solid fa-arrow-right"></i>
             </a>
 
@@ -173,4 +179,18 @@
                 <a href="/register" class="icon-link">
                     <i class="fa-solid fa-user-plus"></i>
                     <span>注册</span>
-        
+                </a>
+                <a href="/public-characters" class="icon-link">
+                    <i class="fa-solid fa-users"></i>
+                    <span>角色广场</span>
+                </a>
+                <a href="/forum" class="icon-link">
+                    <i class="fa-solid fa-comments"></i>
+                    <span>社区论坛</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

@@ -62,6 +62,8 @@ import { ensureThumbnailCache } from './endpoints/thumbnails.js';
 
 // Routers
 import { router as usersPublicRouter } from './endpoints/users-public.js';
+import { router as publicCharactersRouter } from './endpoints/public-characters.js';
+import { router as forumRouter } from './endpoints/forum.js';
 import { router as oauthRouter } from './endpoints/oauth.js';
 import { init as statsInit, onExit as statsOnExit } from './endpoints/stats.js';
 import { checkForNewContent } from './endpoints/content-manager.js';
@@ -92,7 +94,7 @@ if (!cliArgs.enableIPv6 && !cliArgs.enableIPv4) {
 }
 
 const app = express();
-app.set('trust proxy', 1);
+app.set('trust proxy', true);
 app.use(helmet({
     contentSecurityPolicy: false,
 }));
@@ -139,6 +141,7 @@ app.use(cookieSession({
     name: getCookieSessionName(),
     sameSite: 'lax',
     httpOnly: true,
+    secure: false,
     maxAge: getSessionCookieAge(),
     secret: getCookieSecret(globalThis.DATA_ROOT),
 }));
@@ -213,6 +216,7 @@ if (!cliArgs.disableCsrf) {
 }
 
 app.get('/', cacheBuster.middleware, (request, response) => {
+    response.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
     if (request.session && (request.session.userId || request.session.handle)) {
         return response.sendFile('index.html', { root: path.join(serverDirectory, 'public') });
     }
@@ -322,6 +326,18 @@ app.get('/api/announcements/login/current', async (req, res) => {
         res.status(500).json({ error: 'Failed to get current login announcements' });
     }
 });
+
+// 根据配置控制角色卡分享API路由 (Allow public access)
+const enablePublicCharacters = getConfigValue('enablePublicCharacters', true, 'boolean');
+if (enablePublicCharacters) {
+    app.use('/api/public-characters', publicCharactersRouter);
+}
+
+// 根据配置控制论坛API路由 (Allow public access)
+const enableForum = getConfigValue('enableForum', true, 'boolean');
+if (enableForum) {
+    app.use('/api/forum', forumRouter);
+}
 
 // Everything below this line requires authentication
 app.use(requireLoginMiddleware);
